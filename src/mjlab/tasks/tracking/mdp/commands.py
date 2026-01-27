@@ -77,6 +77,53 @@ class MotionCommand(CommandTerm):
     self.motion = MotionLoader(
       self.cfg.motion_file, self.body_indexes, device=self.device
     )
+
+    # ---------------- [修改后的加载逻辑] ----------------
+    self.custom_command_data = None
+    if self.cfg.command_file:
+      import numpy as np
+      try:
+        # allow_pickle=True 以防万一，虽然一般数值不需要
+        loaded = np.load(self.cfg.command_file, allow_pickle=True)
+        
+        # 情况 1: 如果是 .npy 文件，np.load 直接返回数组
+        if isinstance(loaded, np.ndarray):
+             arr = loaded
+             
+        # 情况 2: 如果是 .npz 文件 (NpzFile 对象)
+        elif isinstance(loaded, np.lib.npyio.NpzFile):
+             # 获取所有键名列表
+             keys = loaded.files
+             if len(keys) == 0:
+                 raise ValueError("The .npz file is empty!")
+             
+             # 核心逻辑：不管 Key 叫 'arr_0' 还是 'data'，直接拿第一个
+             # 这样你就不用关心 Key 到底是什么了
+             arr = loaded[keys[0]]
+             
+             if len(keys) > 1:
+                 print(f"[Info] Found multiple keys {keys} in command file, using the first one: '{keys[0]}'")
+        else:
+             raise ValueError("Unknown file format. Please use .npy or .npz")
+
+        # 转换为 Tensor [T, 3]
+        self.custom_command_data = torch.tensor(
+            arr, dtype=torch.float32, device=self.device
+        )
+        
+        # 维度检查 (非常重要！)
+        if self.custom_command_data.ndim != 2 or self.custom_command_data.shape[1] != 3:
+             raise ValueError(f"Command data shape mismatch! Expected (T, 3), got {self.custom_command_data.shape}")
+
+        # 长度检查
+        if self.custom_command_data.shape[0] < self.motion.time_step_total:
+             print(f"[Warning] Command data length ({self.custom_command_data.shape[0]}) "
+                   f"is shorter than motion ({self.motion.time_step_total})! Using cyclic or clamping might be needed.")
+
+      except Exception as e:
+        raise ValueError(f"Failed to load command file: {self.cfg.command_file}. Error: {e}")
+    # ---------------- [修改结束] ----------------
+
     self.time_steps = torch.zeros(self.num_envs, dtype=torch.long, device=self.device)
     self.body_pos_relative_w = torch.zeros(
       self.num_envs, len(cfg.body_names), 3, device=self.device
@@ -121,7 +168,8 @@ class MotionCommand(CommandTerm):
 
   @property
   def command(self) -> torch.Tensor:
-    return torch.cat([self.joint_pos, self.joint_vel], dim=1)
+    return self.custom_command_data[self.time_steps]
+    #return torch.cat([self.joint_pos, self.joint_vel], dim=1)
 
   @property
   def joint_pos(self) -> torch.Tensor:
@@ -473,6 +521,7 @@ class MotionCommand(CommandTerm):
 @dataclass(kw_only=True)
 class MotionCommandCfg(CommandTermCfg):
   motion_file: str
+  command_file: str
   anchor_body_name: str
   body_names: tuple[str, ...]
   entity_name: str
