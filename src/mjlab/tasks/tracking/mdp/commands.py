@@ -521,7 +521,7 @@ class MotionCommand(CommandTerm):
 @dataclass(kw_only=True)
 class MotionCommandCfg(CommandTermCfg):
   motion_file: str
-  command_file: str
+  command_file: str = ""
   anchor_body_name: str
   body_names: tuple[str, ...]
   entity_name: str
