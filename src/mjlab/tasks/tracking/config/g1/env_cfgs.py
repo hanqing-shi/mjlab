@@ -36,6 +36,9 @@ def unitree_g1_flat_tracking_env_cfg(
   joint_pos_action.scale = G1_ACTION_SCALE
 
   motion_cmd = cfg.commands["motion"]
+  ##
+  motion_cmd.command_file = "tmp/command.npz"
+  ##
   assert isinstance(motion_cmd, MotionCommandCfg)
   motion_cmd.anchor_body_name = "torso_link"
   motion_cmd.body_names = (
