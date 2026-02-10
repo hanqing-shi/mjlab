@@ -163,6 +163,29 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
   ##
 
   events: dict[str, EventTermCfg] = {
+
+    ##
+
+    "reset_base": EventTermCfg(
+      func=mdp.reset_root_state_uniform,
+      mode="reset",
+      params={
+        "pose_range": {},
+        "velocity_range": {},
+      },
+    ),
+    "reset_robot_joints": EventTermCfg(
+      func=mdp.reset_joints_by_offset,
+      mode="reset",
+      params={
+        "position_range": (0.0, 0.0),
+        "velocity_range": (0.0, 0.0),
+        "asset_cfg": SceneEntityCfg("robot", joint_names=(".*",)),
+      },
+    ),
+
+    ##
+    
     "push_robot": EventTermCfg(
       func=mdp.push_by_setting_velocity,
       mode="interval",

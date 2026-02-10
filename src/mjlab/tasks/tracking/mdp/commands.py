@@ -393,9 +393,9 @@ class MotionCommand(CommandTerm):
     joint_pos[env_ids] = torch.clip(
       joint_pos[env_ids], soft_joint_pos_limits[:, :, 0], soft_joint_pos_limits[:, :, 1]
     )
-    self.robot.write_joint_state_to_sim(
-      joint_pos[env_ids], joint_vel[env_ids], env_ids=env_ids
-    )
+    # self.robot.write_joint_state_to_sim(
+    #   joint_pos[env_ids], joint_vel[env_ids], env_ids=env_ids
+    # )
 
     root_state = torch.cat(
       [
@@ -406,7 +406,7 @@ class MotionCommand(CommandTerm):
       ],
       dim=-1,
     )
-    self.robot.write_root_state_to_sim(root_state, env_ids=env_ids)
+    # self.robot.write_root_state_to_sim(root_state, env_ids=env_ids)
 
     self.robot.reset(env_ids=env_ids)
 
