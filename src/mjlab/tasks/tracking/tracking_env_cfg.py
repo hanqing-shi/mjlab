@@ -23,7 +23,8 @@ from mjlab.scene import SceneCfg
 from mjlab.sim import MujocoCfg, SimulationCfg
 from mjlab.tasks.tracking import mdp
 from mjlab.tasks.tracking.mdp import MotionCommandCfg
-from mjlab.terrains import TerrainEntityCfg
+from mjlab.tasks.tracking.mdp import UniformVelocityCommandCfg
+from mjlab.terrains import TerrainImporterCfg
 from mjlab.utils.noise import UniformNoiseCfg as Unoise
 from mjlab.viewer import ViewerConfig
 
@@ -46,7 +47,7 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
 
   actor_terms = {
     "command": ObservationTermCfg(
-      func=mdp.generated_commands, params={"command_name": "motion"}
+      func=mdp.generated_commands, params={"command_name": "twist"}
     ),
     # "motion_anchor_pos_b": ObservationTermCfg(
     #   func=mdp.motion_anchor_pos_b,
@@ -155,6 +156,20 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
       motion_file="",
       anchor_body_name="",
       body_names=(),
+    ),
+    "twist": UniformVelocityCommandCfg(
+      entity_name="robot",
+      resampling_time_range=(3.0, 8.0),
+      # rel_standing_envs=0.1,
+      # rel_heading_envs=0.3,
+      # heading_command=True,
+      # heading_control_stiffness=0.5,
+      debug_vis=True,
+      ranges=UniformVelocityCommandCfg.Ranges(
+        lin_vel_x=(-1.6, 1.6),
+        lin_vel_y=(-0.6, 0.6),
+        ang_vel_z=(-2.0, 2.0),
+      ),
     )
   }
 
@@ -164,7 +179,7 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
 
   events: dict[str, EventTermCfg] = {
 
-    ##
+    ## should not be called during training
 
     "reset_base": EventTermCfg(
       func=mdp.reset_root_state_uniform,
@@ -185,7 +200,7 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
     ),
 
     ##
-    
+
     "push_robot": EventTermCfg(
       func=mdp.push_by_setting_velocity,
       mode="interval",
