@@ -166,10 +166,16 @@ class MotionCommand(CommandTerm):
     self._ghost_model: mujoco.MjModel | None = None
     self._ghost_color = np.array(cfg.viz.ghost_color, dtype=np.float32)
 
+##
   @property
   def command(self) -> torch.Tensor:
     return self.custom_command_data[self.time_steps]
     #return torch.cat([self.joint_pos, self.joint_vel], dim=1)
+
+  @property
+  def motion_command(self) -> torch.Tensor:
+    return torch.cat([self.joint_pos, self.joint_vel], dim=1)
+##
 
   @property
   def joint_pos(self) -> torch.Tensor:
@@ -393,9 +399,9 @@ class MotionCommand(CommandTerm):
     joint_pos[env_ids] = torch.clip(
       joint_pos[env_ids], soft_joint_pos_limits[:, :, 0], soft_joint_pos_limits[:, :, 1]
     )
-    # self.robot.write_joint_state_to_sim(
-    #   joint_pos[env_ids], joint_vel[env_ids], env_ids=env_ids
-    # )
+    self.robot.write_joint_state_to_sim(
+      joint_pos[env_ids], joint_vel[env_ids], env_ids=env_ids
+    )
 
     root_state = torch.cat(
       [
@@ -406,7 +412,7 @@ class MotionCommand(CommandTerm):
       ],
       dim=-1,
     )
-    # self.robot.write_root_state_to_sim(root_state, env_ids=env_ids)
+    self.robot.write_root_state_to_sim(root_state, env_ids=env_ids)
 
     self.robot.reset(env_ids=env_ids)
 

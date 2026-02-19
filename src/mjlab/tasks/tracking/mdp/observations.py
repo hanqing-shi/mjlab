@@ -14,6 +14,15 @@ from .commands import MotionCommand
 if TYPE_CHECKING:
   from mjlab.envs import ManagerBasedRlEnv
 
+## 
+
+def motion_command(env: ManagerBasedRlEnv, command_name: str) -> torch.Tensor:
+  command = cast(MotionCommand, env.command_manager.get_term(command_name))
+
+  assert command is not None
+  return command.motion_command.view(env.num_envs, -1)
+
+##
 
 def motion_anchor_pos_b(env: ManagerBasedRlEnv, command_name: str) -> torch.Tensor:
   command = cast(MotionCommand, env.command_manager.get_term(command_name))

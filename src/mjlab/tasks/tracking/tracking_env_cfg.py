@@ -84,6 +84,9 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
     "command": ObservationTermCfg(
       func=mdp.generated_commands, params={"command_name": "motion"}
     ),
+    "motion_command": ObservationTermCfg(
+      func=mdp.motion_command, params={"command_name": "motion"}
+    ),
     "motion_anchor_pos_b": ObservationTermCfg(
       func=mdp.motion_anchor_pos_b, params={"command_name": "motion"}
     ),
@@ -169,7 +172,7 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
         lin_vel_x=(-1.6, 1.6),
         lin_vel_y=(-0.6, 0.6),
         ang_vel_z=(-2.0, 2.0),
-      ),
+      ), # "run":   {"vx": 2.639, "vy": 1.309, "wz": 2.008},
     )
   }
 
@@ -181,23 +184,23 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
 
     ## should not be called during training
 
-    "reset_base": EventTermCfg(
-      func=mdp.reset_root_state_uniform,
-      mode="reset",
-      params={
-        "pose_range": {},
-        "velocity_range": {},
-      },
-    ),
-    "reset_robot_joints": EventTermCfg(
-      func=mdp.reset_joints_by_offset,
-      mode="reset",
-      params={
-        "position_range": (0.0, 0.0),
-        "velocity_range": (0.0, 0.0),
-        "asset_cfg": SceneEntityCfg("robot", joint_names=(".*",)),
-      },
-    ),
+    # "reset_base": EventTermCfg(
+    #   func=mdp.reset_root_state_uniform,
+    #   mode="reset",
+    #   params={
+    #     "pose_range": {},
+    #     "velocity_range": {},
+    #   },
+    # ),
+    # "reset_robot_joints": EventTermCfg(
+    #   func=mdp.reset_joints_by_offset,
+    #   mode="reset",
+    #   params={
+    #     "position_range": (0.0, 0.0),
+    #     "velocity_range": (0.0, 0.0),
+    #     "asset_cfg": SceneEntityCfg("robot", joint_names=(".*",)),
+    #   },
+    # ),
 
     ##
 
