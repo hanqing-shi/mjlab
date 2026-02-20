@@ -47,7 +47,7 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
 
   actor_terms = {
     "command": ObservationTermCfg(
-      func=mdp.generated_commands, params={"command_name": "twist"}
+      func=mdp.generated_commands, params={"command_name": "motion"}
     ),
     # "motion_anchor_pos_b": ObservationTermCfg(
     #   func=mdp.motion_anchor_pos_b,
