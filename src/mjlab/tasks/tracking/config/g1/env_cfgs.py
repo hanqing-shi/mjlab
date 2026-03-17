@@ -36,7 +36,7 @@ def unitree_g1_flat_tracking_env_cfg(
   assert isinstance(joint_pos_action, JointPositionActionCfg)
   joint_pos_action.scale = G1_ACTION_SCALE
 
-  motion_cmd = cfg.commands["motion"]
+  motion_cmd = cfg.commands["twist"]
   ##
   motion_cmd.command_file = "/tmp/command.npz"
   ##
