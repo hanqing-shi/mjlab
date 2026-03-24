@@ -103,11 +103,11 @@ def run_train(task_id: str, cfg: TrainConfig, log_dir: Path) -> None:
       print(f"[INFO] Using local command file: {motion_cmd.command_file}")
     elif cfg.cmd_registry_name:
       # Download from WandB registry.
-      registry_name = cast(str, cfg.cmd_registry_name)
-      if ":" not in registry_name:
-        registry_name = registry_name + ":latest"
+      cmd_registry_name = cast(str, cfg.cmd_registry_name)
+      if ":" not in cmd_registry_name:
+        cmd_registry_name = cmd_registry_name + ":latest"
 
-      artifact = api.artifact(registry_name)
+      artifact = api.artifact(cmd_registry_name)
       motion_cmd.command_file = str(Path(artifact.download()) / "command.npz")
     else:
       raise ValueError(
@@ -172,8 +172,9 @@ def run_train(task_id: str, cfg: TrainConfig, log_dir: Path) -> None:
     runner_cls = MjlabOnPolicyRunner
 
   runner_kwargs = {}
-  if is_tracking_task:
-    runner_kwargs["registry_name"] = registry_name
+  # if is_tracking_task:
+  #   runner_kwargs["registry_name"] = registry_name
+  #   runner_kwargs["cmd_registry_name"] = cmd_registry_name
 
   # Write config files before runner creation, since the runner mutates agent_cfg
   # in-place (e.g., injecting non-serializable objects).
