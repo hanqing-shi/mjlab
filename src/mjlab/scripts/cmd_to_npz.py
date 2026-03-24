@@ -61,8 +61,10 @@ class CommandResampler:
 def main(
     input_csv: str = "command.csv",
     output_npz: str = "/tmp/command.npz",
+    output_name: str = "command", # 新增: 用于 wandb 的命名
     input_fps: float = 30.0,
     output_fps: float = 50.0, # Standard MujocoLab control freq (dt=0.02)
+    upload_to_wandb: bool = True, # 新增: 控制是否上传的开关
 ):
     converter = CommandResampler(input_csv, input_fps, output_fps)
     result_data = converter.resample()
@@ -72,6 +74,27 @@ def main(
     print(f"Saving to {output_npz}...")
     np.savez(output_npz, data=result_data)
     print("Done!")
+
+    # --- WANDB 上传逻辑 ---
+    if upload_to_wandb:
+        print("Uploading to Weights & Biases...")
+        import wandb
+
+        COLLECTION = output_name
+        run = wandb.init(project="cmd_to_npz", name=COLLECTION)
+        print(f"[INFO]: Logging command data to wandb: {COLLECTION}")
+        
+        REGISTRY = "Commands" 
+        logged_artifact = run.log_artifact(
+            artifact_or_path=output_npz, name=COLLECTION, type=REGISTRY
+        )
+        run.link_artifact(
+            artifact=logged_artifact,
+            target_path=f"wandb-registry-{REGISTRY}/{COLLECTION}",
+        )
+        print(f"[INFO]: Command data saved to wandb registry: {REGISTRY}/{COLLECTION}")
+        
+        wandb.finish()
 
 if __name__ == "__main__":
     tyro.cli(main)

@@ -26,6 +26,7 @@ class TrainConfig:
   env: ManagerBasedRlEnvCfg
   agent: RslRlBaseRunnerCfg
   registry_name: str | None = None
+  cmd_registry_name: str | None = None
   video: bool = False
   video_length: int = 200
   video_interval: int = 2000
@@ -66,14 +67,15 @@ def run_train(task_id: str, cfg: TrainConfig, log_dir: Path) -> None:
   print(f"[INFO] Training with: device={device}, seed={seed}, rank={rank}")
 
   registry_name: str | None = None
+  cmd_registry_name: str | None = None
 
   # Check if this is a tracking task by checking for motion command.
-  is_tracking_task = "motion" in cfg.env.commands and isinstance(
-    cfg.env.commands["motion"], MotionCommandCfg
+  is_tracking_task = "twist" in cfg.env.commands and isinstance(
+    cfg.env.commands["twist"], MotionCommandCfg
   )
 
   if is_tracking_task:
-    motion_cmd = cfg.env.commands["motion"]
+    motion_cmd = cfg.env.commands["twist"]
     assert isinstance(motion_cmd, MotionCommandCfg)
 
     # Check if motion_file is already set (e.g., via CLI --env.commands.motion.motion-file).
@@ -89,6 +91,24 @@ def run_train(task_id: str, cfg: TrainConfig, log_dir: Path) -> None:
       api = wandb.Api()
       artifact = api.artifact(registry_name)
       motion_cmd.motion_file = str(Path(artifact.download()) / "motion.npz")
+    else:
+      raise ValueError(
+        "For tracking tasks, provide either:\n"
+        "  --registry-name your-org/motions/motion-name (download from WandB)\n"
+        "  --env.commands.motion.motion-file /path/to/motion.npz (local file)"
+      )
+    
+    # Command file
+    if motion_cmd.command_file and Path(motion_cmd.command_file).exists():
+      print(f"[INFO] Using local command file: {motion_cmd.command_file}")
+    elif cfg.cmd_registry_name:
+      # Download from WandB registry.
+      registry_name = cast(str, cfg.cmd_registry_name)
+      if ":" not in registry_name:
+        registry_name = registry_name + ":latest"
+
+      artifact = api.artifact(registry_name)
+      motion_cmd.command_file = str(Path(artifact.download()) / "command.npz")
     else:
       raise ValueError(
         "For tracking tasks, provide either:\n"

@@ -1,6 +1,6 @@
 """Motion mimic task configuration.
 
-This module defines the base configuration for motion mimic tasks.
+This module defines the base configuration for twist mimic tasks.
 Robot-specific configurations are located in the config/ directory.
 
 This is a re-implementation of BeyondMimic (https://beyondmimic.github.io/).
@@ -51,12 +51,12 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
     ),
     # "motion_anchor_pos_b": ObservationTermCfg(
     #   func=mdp.motion_anchor_pos_b,
-    #   params={"command_name": "motion"},
+    #   params={"command_name": "twist"},
     #   noise=Unoise(n_min=-0.25, n_max=0.25),
     # ),
     # "motion_anchor_ori_b": ObservationTermCfg(
     #   func=mdp.motion_anchor_ori_b,
-    #   params={"command_name": "motion"},
+    #   params={"command_name": "twist"},
     #   noise=Unoise(n_min=-0.05, n_max=0.05),
     # ),
     "base_lin_vel": ObservationTermCfg(
@@ -253,32 +253,32 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
     "motion_global_root_pos": RewardTermCfg(
       func=mdp.motion_global_anchor_position_error_exp,
       weight=5.0,
-      params={"command_name": "motion", "std": 0.3},
+      params={"command_name": "twist", "std": 0.3},
     ),
     "motion_global_root_ori": RewardTermCfg(
       func=mdp.motion_global_anchor_orientation_error_exp,
       weight=5.0,
-      params={"command_name": "motion", "std": 0.4},
+      params={"command_name": "twist", "std": 0.4},
     ),
     "motion_body_pos": RewardTermCfg(
       func=mdp.motion_relative_body_position_error_exp,
       weight=10.0,
-      params={"command_name": "motion", "std": 0.3},
+      params={"command_name": "twist", "std": 0.3},
     ),
     "motion_body_ori": RewardTermCfg(
       func=mdp.motion_relative_body_orientation_error_exp,
       weight=10.0,
-      params={"command_name": "motion", "std": 0.4},
+      params={"command_name": "twist", "std": 0.4},
     ),
     "motion_body_lin_vel": RewardTermCfg(
       func=mdp.motion_global_body_linear_velocity_error_exp,
       weight=10.0,
-      params={"command_name": "motion", "std": 1.0},
+      params={"command_name": "twist", "std": 1.0},
     ),
     "motion_body_ang_vel": RewardTermCfg(
       func=mdp.motion_global_body_angular_velocity_error_exp,
       weight=10.0,
-      params={"command_name": "motion", "std": 3.14},
+      params={"command_name": "twist", "std": 3.14},
     ),
     "action_rate_l2": RewardTermCfg(func=mdp.action_rate_l2, weight=-1e-1),
     "joint_limit": RewardTermCfg(
@@ -301,20 +301,20 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
     "time_out": TerminationTermCfg(func=mdp.time_out, time_out=True),
     "anchor_pos": TerminationTermCfg(
       func=mdp.bad_anchor_pos_z_only,
-      params={"command_name": "motion", "threshold": 0.25},
+      params={"command_name": "twist", "threshold": 0.25},
     ),
     "anchor_ori": TerminationTermCfg(
       func=mdp.bad_anchor_ori,
       params={
         "asset_cfg": SceneEntityCfg("robot"),
-        "command_name": "motion",
+        "command_name": "twist",
         "threshold": 0.8,
       },
     ),
     "ee_body_pos": TerminationTermCfg(
       func=mdp.bad_motion_body_pos_z_only,
       params={
-        "command_name": "motion",
+        "command_name": "twist",
         "threshold": 0.25,
         "body_names": (),  # Set per-robot.
       },
