@@ -8,6 +8,11 @@ Upcoming version (not yet released)
 Added
 ^^^^^
 
+- Added ``ActuatorCfg.viscous_damping`` for passive velocity proportional
+  damping (``f = -b·v``), distinct from the PD derivative gain ``damping``
+  used by position and velocity actuators. Maps to ``<joint damping>`` for
+  JOINT transmission and ``<tendon damping>`` for TENDON transmission.
+  Defaults to ``None`` (preserves the XML value).
 - Added :class:`~mjlab.managers.RecorderManager` for logging observations,
   actions, or arbitrary environment data during rollouts. Implement a
   :class:`~mjlab.managers.RecorderTerm` subclass and register it in the
@@ -69,6 +74,12 @@ Added
 Changed
 ^^^^^^^
 
+- ``ActuatorCfg.armature`` and ``ActuatorCfg.frictionloss`` now default to
+  ``None`` instead of ``0.0``. ``None`` preserves the value defined in the
+  XML. Previously, builtin actuators would silently overwrite XML joint and
+  tendon properties with zero when these fields were not explicitly set.
+  To restore the old behavior, pass ``armature=0.0`` or ``frictionloss=0.0``
+  explicitly.
 - Actuator delay is now configured inline on any ``ActuatorCfg`` subclass
   (e.g. ``BuiltinPositionActuatorCfg(..., delay_min_lag=2, delay_max_lag=5)``)
   instead of wrapping with ``DelayedActuatorCfg``. ``DelayedActuator``,
