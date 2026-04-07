@@ -40,7 +40,8 @@ dependencies = [
   "mujoco-warp>=3.6.0",
   "mujoco>=3.6.0",
   "trimesh>=4.8.3",
-  "viser>=1.0.24",
+  "viser>=1.0.26",
+  "mjviser>=0.0.11",
   "mediapy>=1.2.6",
   "imageio-ffmpeg",
   "tensordict",
@@ -135,7 +136,7 @@ torch = [
   { index = "pytorch-cpu", extra = "cpu", marker = "sys_platform != 'darwin'" },
 ]
 mujoco = { index = "mujoco" }
-mujoco-warp = { git = "https://github.com/google-deepmind/mujoco_warp", rev = "ada89af766e7b877a660615df8289765d5749885" }
+mujoco-warp = { git = "https://github.com/google-deepmind/mujoco_warp", rev = "875c4caf06d71b12b2036c327e7a07ce08a78b9a" }
 
 [tool.ruff]
 src = ["src"]  # Helpful for recognizing first-party imports.
@@ -151,6 +152,8 @@ ignore = ["B011"]
 
 [tool.pyright]
 pythonVersion = "3.10"
+venvPath = "."
+venv = ".venv"
 ignore = ["./typings", "./src/mjlab/utils/lab_api", "./docs"]
 stubPath = "typings"
 
