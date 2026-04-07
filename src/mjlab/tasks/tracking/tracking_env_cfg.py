@@ -62,7 +62,7 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
     "base_lin_vel": ObservationTermCfg(
       func=mdp.builtin_sensor,
       params={"sensor_name": "robot/imu_lin_vel"},
-      noise=Unoise(n_min=-0, n_max=0),
+      noise=Unoise(n_min=-0.5, n_max=0.5),
     ),
     "base_ang_vel": ObservationTermCfg(
       func=mdp.builtin_sensor,
@@ -252,32 +252,32 @@ def make_tracking_env_cfg() -> ManagerBasedRlEnvCfg:
   rewards: dict[str, RewardTermCfg] = {
     "motion_global_root_pos": RewardTermCfg(
       func=mdp.motion_global_anchor_position_error_exp,
-      weight=5.0,
+      weight=0.5,
       params={"command_name": "twist", "std": 0.3},
     ),
     "motion_global_root_ori": RewardTermCfg(
       func=mdp.motion_global_anchor_orientation_error_exp,
-      weight=5.0,
+      weight=0.5,
       params={"command_name": "twist", "std": 0.4},
     ),
     "motion_body_pos": RewardTermCfg(
       func=mdp.motion_relative_body_position_error_exp,
-      weight=10.0,
+      weight=1.0,
       params={"command_name": "twist", "std": 0.3},
     ),
     "motion_body_ori": RewardTermCfg(
       func=mdp.motion_relative_body_orientation_error_exp,
-      weight=10.0,
+      weight=1.0,
       params={"command_name": "twist", "std": 0.4},
     ),
     "motion_body_lin_vel": RewardTermCfg(
       func=mdp.motion_global_body_linear_velocity_error_exp,
-      weight=10.0,
+      weight=1.0,
       params={"command_name": "twist", "std": 1.0},
     ),
     "motion_body_ang_vel": RewardTermCfg(
       func=mdp.motion_global_body_angular_velocity_error_exp,
-      weight=10.0,
+      weight=1.0,
       params={"command_name": "twist", "std": 3.14},
     ),
     "action_rate_l2": RewardTermCfg(func=mdp.action_rate_l2, weight=-1e-1),
