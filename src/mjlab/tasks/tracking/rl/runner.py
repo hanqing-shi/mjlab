@@ -18,14 +18,21 @@ class MotionTrackingOnPolicyRunner(MjlabOnPolicyRunner):
     policy_path = path.split("model")[0]
     filename = os.path.basename(os.path.dirname(policy_path)) + ".onnx"
     self.export_policy_to_onnx(policy_path, filename)
+    
     run_name: str = (
       wandb.run.name if self.logger.logger_type == "wandb" and wandb.run else "local"
-    )  # type: ignore[assignment]
+    )
+    
     onnx_path = os.path.join(policy_path, filename)
-    metadata = get_base_metadata(self.env.unwrapped, run_name)
+    
+    # 获取原始环境对象
+    base_env = self.env.unwrapped
+    metadata = get_base_metadata(base_env, run_name)
 
-    actor_terms = self.env.observation_manager.active_terms["actor"]
-    term_cfg = self.env.observation_manager.get_term_cfg("actor", actor_terms[0])
+    # 通过 base_env 访问 observation_manager
+    obs_manager = base_env.observation_manager
+    actor_terms = obs_manager.active_terms["actor"]
+    term_cfg = obs_manager.get_term_cfg("actor", actor_terms[0])
 
     metadata.update(
         {
@@ -33,9 +40,7 @@ class MotionTrackingOnPolicyRunner(MjlabOnPolicyRunner):
           "flatten_history": int(term_cfg.flatten_history_dim)
         }
       )
-    # metadata["history_length"] = term_cfg.history_length
-    # metadata["flatten_history"] = int(term_cfg.flatten_history_dim)
    
     attach_metadata_to_onnx(onnx_path, metadata)
     if self.logger.logger_type in ["wandb"] and self.cfg["upload_model"]:
-      wandb.save(policy_path + filename, base_path=os.path.dirname(policy_path))
+      wandb.save(onnx_path, base_path=os.path.dirname(policy_path))
