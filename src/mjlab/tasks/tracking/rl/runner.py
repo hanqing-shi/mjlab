@@ -23,6 +23,19 @@ class MotionTrackingOnPolicyRunner(MjlabOnPolicyRunner):
     )  # type: ignore[assignment]
     onnx_path = os.path.join(policy_path, filename)
     metadata = get_base_metadata(self.env.unwrapped, run_name)
+
+    actor_terms = self.env.observation_manager.active_terms["actor"]
+    term_cfg = self.env.observation_manager.get_term_cfg("actor", actor_terms[0])
+
+    metadata.update(
+        {
+          "history_length": term_cfg.history_length,
+          "flatten_history": int(term_cfg.flatten_history_dim)
+        }
+      )
+    # metadata["history_length"] = term_cfg.history_length
+    # metadata["flatten_history"] = int(term_cfg.flatten_history_dim)
+   
     attach_metadata_to_onnx(onnx_path, metadata)
     if self.logger.logger_type in ["wandb"] and self.cfg["upload_model"]:
       wandb.save(policy_path + filename, base_path=os.path.dirname(policy_path))
