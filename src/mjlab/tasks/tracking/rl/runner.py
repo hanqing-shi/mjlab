@@ -35,7 +35,7 @@ class MotionTrackingOnPolicyRunner(MjlabOnPolicyRunner):
     
     # 构造数组：例如 [3, 3, 3]
     history_lengths = [
-      obs_manager.get_term_cfg("actor", name).history_length 
+      int(obs_manager.get_term_cfg("actor", name).history_length)
       for name in actor_terms
     ]
 
