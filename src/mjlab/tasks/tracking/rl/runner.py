@@ -41,7 +41,7 @@ class MotionTrackingOnPolicyRunner(MjlabOnPolicyRunner):
     ]
 
     # 2. 手动转为逗号分隔的整数字符串，绕过 exporter_utils 的浮点数格式化
-    metadata["history_length"] = ",".join(map(str, history_lengths))
+    metadata["history_lengths"] = ",".join(map(str, history_lengths))
    
     attach_metadata_to_onnx(onnx_path, metadata)
     if self.logger.logger_type in ["wandb"] and self.cfg["upload_model"]:
