@@ -34,14 +34,14 @@ class MotionTrackingOnPolicyRunner(MjlabOnPolicyRunner):
     actor_terms = obs_manager.active_terms["actor"]
     
     # 构造数组：例如 [3, 3, 3]
+    # 1. 先得到整数列表
     history_lengths = [
-      int(obs_manager.get_term_cfg("actor", name).history_length)
+      int(obs_manager.get_term_cfg("actor", name).history_length) 
       for name in actor_terms
     ]
 
-    metadata.update({
-      "history_length": history_lengths
-    })
+    # 2. 手动转为逗号分隔的整数字符串，绕过 exporter_utils 的浮点数格式化
+    metadata["history_length"] = ",".join(map(str, history_lengths))
    
     attach_metadata_to_onnx(onnx_path, metadata)
     if self.logger.logger_type in ["wandb"] and self.cfg["upload_model"]:
