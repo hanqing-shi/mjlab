@@ -32,14 +32,16 @@ class MotionTrackingOnPolicyRunner(MjlabOnPolicyRunner):
     # 通过 base_env 访问 observation_manager
     obs_manager = base_env.observation_manager
     actor_terms = obs_manager.active_terms["actor"]
-    term_cfg = obs_manager.get_term_cfg("actor", actor_terms[0])
+    
+    # 构造数组：例如 [3, 3, 3]
+    history_lengths = [
+      obs_manager.get_term_cfg("actor", name).history_length 
+      for name in actor_terms
+    ]
 
-    metadata.update(
-        {
-          "history_length": term_cfg.history_length,
-          "flatten_history": int(term_cfg.flatten_history_dim)
-        }
-      )
+    metadata.update({
+      "history_length": history_lengths
+    })
    
     attach_metadata_to_onnx(onnx_path, metadata)
     if self.logger.logger_type in ["wandb"] and self.cfg["upload_model"]:
